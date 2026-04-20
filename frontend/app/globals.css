@@ -1,0 +1,79 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.legal-document {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 13px;
+  line-height: 1.7;
+  color: #1a1a1a;
+}
+
+.legal-document h1 {
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.legal-document h2 {
+  font-size: 13px;
+  font-weight: 700;
+  margin-top: 20px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.legal-document h3 {
+  font-size: 13px;
+  font-weight: 700;
+  margin-top: 14px;
+  margin-bottom: 6px;
+}
+
+.legal-document p {
+  margin-bottom: 10px;
+  text-align: justify;
+}
+
+.legal-document ol {
+  padding-left: 0;
+  margin-bottom: 10px;
+  list-style: none;
+  counter-reset: section;
+}
+
+.legal-document ol > li {
+  margin-bottom: 10px;
+  text-align: justify;
+  padding-left: 2em;
+  position: relative;
+}
+
+.legal-document a {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
+.legal-document table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+  font-size: 12px;
+}
+
+.legal-document th,
+.legal-document td {
+  border: 1px solid #d1d5db;
+  padding: 8px 10px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.legal-document th {
+  background-color: #f9fafb;
+  font-weight: 600;
+}
