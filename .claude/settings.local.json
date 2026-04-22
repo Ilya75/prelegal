@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__atlassian__getJiraIssue",
+      "mcp__github__get_file_contents",
+      "Bash(curl -sL \"https://raw.githubusercontent.com/CommonPaper/Mutual-NDA/2a3068b6c0ab6015c440f541d5b215bc3ac2f4cb/Mutual-NDA.md\" -o \"Mutual-NDA.md\")",
+      "Bash(curl -sL \"https://raw.githubusercontent.com/CommonPaper/Mutual-NDA/2a3068b6c0ab6015c440f541d5b215bc3ac2f4cb/Mutual-NDA-coverpage.md\" -o \"Mutual-NDA-coverpage.md\")",
+      "Bash(curl -sL \"https://raw.githubusercontent.com/CommonPaper/CSA/4afc1f9d9ebad949a67a9585ed527e19f482492b/CSA.md\" -o \"CSA.md\")",
+      "Bash(curl -sL \"https://raw.githubusercontent.com/CommonPaper/Design-Partner-Agreement/ff8ed1049d5546ea6bd96a17b4c910d831cde3be/design-partner-agreement.md\" -o \"design-partner-agreement.md\")",
+      "Bash(curl -sL \"https://raw.githubusercontent.com/CommonPaper/SLA/5b0e6336f058a66c4976d70ecabf1f5fb9ef3af4/sla.md\" -o \"sla.md\")",
+      "mcp__github__merge_pull_request",
+      "mcp__atlassian__getAccessibleAtlassianResources",
+      "Bash(npm install *)",
+      "Bash(node -e \"const p = require\\('./node_modules/next/package.json'\\); console.log\\(p.version\\)\")",
+      "Bash(npm test *)",
+      "mcp__github__create_pull_request",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:github.com)"
+    ]
+  }
+}
