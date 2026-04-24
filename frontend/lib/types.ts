@@ -37,3 +37,20 @@ export const defaultFormData: NdaFormData = {
   party2Address: '',
   modifications: '',
 };
+
+export type GenericFormData = Record<string, string>;
+
+export const defaultGenericFormData: GenericFormData = {
+  providerCompany: '',
+  customerCompany: '',
+  effectiveDate: '',
+  governingLaw: '',
+  chosenCourts: '',
+};
+
+export interface DocumentEntry {
+  slug: string;
+  name: string;
+  description: string;
+  filename: string;
+}

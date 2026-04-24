@@ -48,3 +48,55 @@ export function substituteStandardTerms(content: string, data: NdaFormData): str
   }
   return result;
 }
+
+// Generic document substitution — handles coverpage_link, keyterms_link, and orderform_link spans
+export function substituteGenericTerms(content: string, fields: Record<string, string>): string {
+  // Maps span display text to field key (and optional possessive transform)
+  const fieldMap: Array<{ spanText: string; key: string; display?: (v: string) => string }> = [
+    { spanText: 'Provider', key: 'providerCompany' },
+    { spanText: "Provider's", key: 'providerCompany', display: (v) => `${v}'s` },
+    { spanText: 'Customer', key: 'customerCompany' },
+    { spanText: "Customer's", key: 'customerCompany', display: (v) => `${v}'s` },
+    { spanText: 'Governing Law', key: 'governingLaw' },
+    { spanText: 'Chosen Courts', key: 'chosenCourts' },
+    {
+      spanText: 'Effective Date',
+      key: 'effectiveDate',
+      display: (v) => (v ? formatDatePlain(v) : ''),
+    },
+  ];
+
+  let result = content;
+
+  for (const { spanText, key, display } of fieldMap) {
+    const rawValue = fields[key] || '';
+    const displayValue = display ? display(rawValue) : rawValue;
+    const replacement = displayValue ? highlight(displayValue) : placeholder(spanText);
+
+    for (const spanClass of ['coverpage_link', 'keyterms_link']) {
+      const regex = new RegExp(
+        `<span class="${spanClass}">${escapeRegex(spanText)}<\\/span>`,
+        'g',
+      );
+      result = result.replace(regex, replacement);
+    }
+  }
+
+  // Style remaining orderform_link spans as placeholders
+  result = result.replace(
+    /<span class="orderform_link">([^<]+)<\/span>/g,
+    (_, fieldName) => placeholder(fieldName),
+  );
+
+  return result;
+}
+
+function formatDatePlain(dateString: string): string {
+  if (!dateString) return '';
+  const [year, month, day] = dateString.split('-').map(Number);
+  return new Date(year, month - 1, day).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+}

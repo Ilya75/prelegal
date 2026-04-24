@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { NdaFormData } from '@/lib/types';
 import { chatApi } from '@/lib/api';
 
 interface Message {
@@ -10,20 +9,20 @@ interface Message {
 }
 
 interface Props {
-  fields: NdaFormData;
-  onFieldsChange: (fields: NdaFormData) => void;
+  documentType: string;
+  openingMessage: string;
+  fields: Record<string, string>;
+  onFieldsChange: (fields: Record<string, string>) => void;
 }
 
-const OPENING_MESSAGE =
-  "Hi! I'll help you fill in your Mutual NDA. Let's start — what is the purpose of this agreement? For example: evaluating a potential business partnership.";
-
-export default function AiChat({ fields, onFieldsChange }: Props) {
+export default function AiChat({ documentType, openingMessage, fields, onFieldsChange }: Props) {
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: OPENING_MESSAGE },
+    { role: 'assistant', content: openingMessage },
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -42,13 +41,13 @@ export default function AiChat({ fields, onFieldsChange }: Props) {
 
     try {
       // Skip the hardcoded opening message — it's a UI artifact the AI never generated
-      const data = await chatApi.message(updated.slice(1), fields as unknown as Record<string, unknown>);
+      const data = await chatApi.message(updated.slice(1), fields, documentType);
       setMessages(prev => [...prev, { role: 'assistant', content: data.reply }]);
       if (data.fields) {
         const merged = { ...fields };
         for (const [k, v] of Object.entries(data.fields as Record<string, unknown>)) {
           if (v !== null && v !== undefined) {
-            (merged as Record<string, unknown>)[k] = v;
+            merged[k] = v as string;
           }
         }
         onFieldsChange(merged);
@@ -60,6 +59,7 @@ export default function AiChat({ fields, onFieldsChange }: Props) {
       ]);
     } finally {
       setLoading(false);
+      inputRef.current?.focus();
     }
   }
 
@@ -95,6 +95,7 @@ export default function AiChat({ fields, onFieldsChange }: Props) {
 
       <form onSubmit={handleSend} className="flex items-center gap-2 border-t border-gray-200 p-3 flex-shrink-0">
         <input
+          ref={inputRef}
           type="text"
           value={input}
           onChange={e => setInput(e.target.value)}
