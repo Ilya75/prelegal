@@ -8,7 +8,7 @@ The available documents are covered in the catalog.json file in the project root
 
 @catalog.json
 
-The current implementation has user authentication (signup/signin), a Mutual NDA Creator, and AI chat for the Mutual NDA. Multi-document support and document persistence are not yet built.
+The current implementation has user authentication (signup/signin), a document picker home page, AI-guided chat for all 11 supported document types, and live document preview with PDF download. Document persistence is not yet built.
 
 ## Development process
 
@@ -72,3 +72,16 @@ Frontend-only prototype: NDA form + live preview + PDF download. No backend, no 
 - **Backend route**: `backend/app/api/routes/chat.py` — system prompt instructs AI to gather NDA fields conversationally and return JSON only for newly learned fields.
 - **Frontend**: `NdaForm` replaced by `AiChat` component (`frontend/components/AiChat.tsx`). Left panel is now a chat UI; on each AI response, non-null field values are merged into `formData`, updating the live preview instantly. Chat history is React state only (in-memory, no persistence). AI opens with a hardcoded greeting — no round-trip on mount. The hardcoded opening message is excluded from API calls (it is a UI artifact, not a real AI turn).
 - **Frontend API**: `chatApi.message()` added to `frontend/lib/api.ts`.
+
+### PL-6 — Expand to all supported document types (merged)
+- **Home page**: `/` is now a document picker showing all 11 supported document types as cards. Each card navigates to `/document/?type=slug`.
+- **Document creator page**: `/document/` (client-side) reads `?type` from URL, fetches template via API, renders `DocumentCreator`.
+- **DocumentCreator**: Generic orchestrator (`frontend/components/DocumentCreator.tsx`). Uses `NdaPreview` for `mutual-nda`, `GenericPreview` for all other types.
+- **GenericPreview**: (`frontend/components/GenericPreview.tsx`) Shows a key terms section (Provider, Customer, Effective Date, Governing Law, Chosen Courts) + full standard terms body with field substitution.
+- **Generic substitution**: `substituteGenericTerms` in `frontend/lib/substitution.ts` handles `coverpage_link`, `keyterms_link` (Provider/Customer/Governing Law/Chosen Courts/Effective Date) and styles `orderform_link` spans as gray placeholders.
+- **Backend chat**: `ChatRequest` now has `document_type: str` and generic `fields: dict[str, str | None]`. `backend/app/core/document_configs.py` holds per-document system prompts for all 11 types. All prompts enforce follow-up questions when fields are still missing.
+- **Documents API**: `GET /api/documents` returns catalog (minus cover-page sub-component), `GET /api/documents/{slug}/template` returns template markdown. `backend/app/api/routes/documents.py`.
+- **Dockerfile**: Copies `templates/` and `catalog.json` to the runtime container so the API can serve them.
+- **AiChat**: Now accepts `documentType`, `openingMessage` props; input field auto-focuses after each AI response.
+- **Generic fields**: `frontend/lib/types.ts` adds `GenericFormData = Record<string, string>` and `DocumentEntry`. Default generic fields: `providerCompany`, `customerCompany`, `effectiveDate`, `governingLaw`, `chosenCourts`.
+- **Unsupported documents**: "Mutual NDA Cover Page" (a sub-component, not a standalone doc) is filtered from the document picker.
