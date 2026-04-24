@@ -35,3 +35,8 @@ export const authApi = {
 
   me: () => apiFetch('/api/auth/me'),
 };
+
+export const chatApi = {
+  message: (messages: { role: string; content: string }[], fields: Record<string, unknown>) =>
+    apiFetch('/api/chat/message', { method: 'POST', body: JSON.stringify({ messages, fields }) }),
+};

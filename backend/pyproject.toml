@@ -9,4 +9,5 @@ dependencies = [
     "bcrypt>=4.0",
     "python-multipart>=0.0.20",
     "pydantic-settings>=2.7",
+    "litellm>=1.40",
 ]

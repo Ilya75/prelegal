@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { defaultFormData, NdaFormData } from '@/lib/types';
 import { useAuth } from '@/lib/auth';
-import NdaForm from './NdaForm';
+import AiChat from './AiChat';
 import NdaPreview from './NdaPreview';
 import DownloadButton from './DownloadButton';
 
@@ -41,8 +41,8 @@ export default function NdaCreator({ standardTerms }: Props) {
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        <div className="w-2/5 overflow-y-auto bg-gray-50 border-r border-gray-200">
-          <NdaForm data={formData} onChange={setFormData} />
+        <div className="w-2/5 overflow-hidden bg-gray-50 border-r border-gray-200">
+          <AiChat fields={formData} onFieldsChange={setFormData} />
         </div>
         <div className="w-3/5 overflow-y-auto bg-white">
           <NdaPreview data={formData} standardTerms={standardTerms} />
