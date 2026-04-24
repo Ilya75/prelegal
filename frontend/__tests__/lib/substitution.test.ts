@@ -1,4 +1,4 @@
-import { substituteStandardTerms } from '@/lib/substitution';
+import { substituteStandardTerms, substituteGenericTerms } from '@/lib/substitution';
 import { defaultFormData, NdaFormData } from '@/lib/types';
 
 const base: NdaFormData = {
@@ -264,6 +264,113 @@ describe('substituteStandardTerms', () => {
       const content = `<span class="coverpage_link">Unknown Field</span>`;
       const result = substituteStandardTerms(content, base);
       expect(result).toBe(content);
+    });
+  });
+});
+
+describe('substituteGenericTerms', () => {
+  const cov = (text: string) => `<span class="coverpage_link">${text}</span>`;
+  const kt = (text: string) => `<span class="keyterms_link">${text}</span>`;
+  const of = (text: string) => `<span class="orderform_link">${text}</span>`;
+
+  const highlight = (v: string) =>
+    `<mark style="background:#fef3c7;padding:1px 4px;border-radius:3px;font-style:normal">${v}</mark>`;
+  const ph = (t: string) => `<span style="color:#9ca3af;font-style:italic">[${t}]</span>`;
+
+  const fields = {
+    providerCompany: 'Acme Corp',
+    customerCompany: 'Beta Inc',
+    effectiveDate: '2024-03-15',
+    governingLaw: 'Delaware',
+    chosenCourts: 'New Castle, DE',
+  };
+
+  describe('coverpage_link substitution', () => {
+    it('replaces Provider with highlighted value', () => {
+      expect(substituteGenericTerms(cov('Provider'), fields)).toContain(highlight('Acme Corp'));
+    });
+
+    it("replaces Provider's with possessive form", () => {
+      expect(substituteGenericTerms(cov("Provider's"), fields)).toContain(highlight("Acme Corp's"));
+    });
+
+    it('replaces Customer with highlighted value', () => {
+      expect(substituteGenericTerms(cov('Customer'), fields)).toContain(highlight('Beta Inc'));
+    });
+
+    it("replaces Customer's with possessive form", () => {
+      expect(substituteGenericTerms(cov("Customer's"), fields)).toContain(highlight("Beta Inc's"));
+    });
+
+    it('replaces Governing Law with highlighted value', () => {
+      expect(substituteGenericTerms(cov('Governing Law'), fields)).toContain(highlight('Delaware'));
+    });
+
+    it('replaces Chosen Courts with highlighted value', () => {
+      expect(substituteGenericTerms(cov('Chosen Courts'), fields)).toContain(highlight('New Castle, DE'));
+    });
+
+    it('replaces Effective Date with formatted date', () => {
+      const result = substituteGenericTerms(cov('Effective Date'), fields);
+      expect(result).toContain('March 15, 2024');
+    });
+  });
+
+  describe('keyterms_link substitution', () => {
+    it('replaces Provider in keyterms_link span', () => {
+      expect(substituteGenericTerms(kt('Provider'), fields)).toContain(highlight('Acme Corp'));
+    });
+
+    it('replaces Customer in keyterms_link span', () => {
+      expect(substituteGenericTerms(kt('Customer'), fields)).toContain(highlight('Beta Inc'));
+    });
+
+    it('replaces Governing Law in keyterms_link span', () => {
+      expect(substituteGenericTerms(kt('Governing Law'), fields)).toContain(highlight('Delaware'));
+    });
+  });
+
+  describe('orderform_link spans', () => {
+    it('renders orderform_link as placeholder', () => {
+      expect(substituteGenericTerms(of('Subscription Period'), fields)).toContain(ph('Subscription Period'));
+    });
+
+    it('removes the orderform_link span class from output', () => {
+      expect(substituteGenericTerms(of('Subscription Period'), fields)).not.toContain('orderform_link');
+    });
+  });
+
+  describe('empty fields', () => {
+    it('shows placeholder when providerCompany is empty', () => {
+      const result = substituteGenericTerms(cov('Provider'), { ...fields, providerCompany: '' });
+      expect(result).toContain(ph('Provider'));
+    });
+
+    it('shows placeholder when customerCompany is empty', () => {
+      const result = substituteGenericTerms(cov('Customer'), { ...fields, customerCompany: '' });
+      expect(result).toContain(ph('Customer'));
+    });
+
+    it('shows placeholder when effectiveDate is empty', () => {
+      const result = substituteGenericTerms(cov('Effective Date'), { ...fields, effectiveDate: '' });
+      expect(result).toContain(ph('Effective Date'));
+    });
+  });
+
+  describe('multiple substitutions', () => {
+    it('substitutes multiple fields in a single call', () => {
+      const content = `${cov('Provider')} ${cov('Customer')} ${cov('Governing Law')}`;
+      const result = substituteGenericTerms(content, fields);
+      expect(result).toContain('Acme Corp');
+      expect(result).toContain('Beta Inc');
+      expect(result).toContain('Delaware');
+    });
+
+    it('replaces multiple occurrences of the same field', () => {
+      const content = `${cov('Provider')} and again ${cov('Provider')}`;
+      const result = substituteGenericTerms(content, fields);
+      const count = (result.match(/Acme Corp/g) ?? []).length;
+      expect(count).toBe(2);
     });
   });
 });

@@ -37,6 +37,18 @@ export const authApi = {
 };
 
 export const chatApi = {
-  message: (messages: { role: string; content: string }[], fields: Record<string, unknown>) =>
-    apiFetch('/api/chat/message', { method: 'POST', body: JSON.stringify({ messages, fields }) }),
+  message: (
+    messages: { role: string; content: string }[],
+    fields: Record<string, unknown>,
+    documentType: string = 'mutual-nda',
+  ) =>
+    apiFetch('/api/chat/message', {
+      method: 'POST',
+      body: JSON.stringify({ messages, fields, document_type: documentType }),
+    }),
+};
+
+export const documentsApi = {
+  list: () => apiFetch('/api/documents'),
+  getTemplate: (slug: string) => apiFetch(`/api/documents/${slug}/template`),
 };
